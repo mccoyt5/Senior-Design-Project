@@ -1,4 +1,4 @@
-# Team Name: Yet Another Monitoring Tool - YAMT
+# Team Name: Yet Another Host Sentinel - YAHS
 
 ## Team Members
 
@@ -8,8 +8,8 @@ Thomas McCoy - Computer Science - mccoyt5@mail.uc.edu
 
 ## Project Topic Area
 
-Process monitoring tool for network-based signatures and host-based signatures. Mainly targeting Windows systems, x86 architecture.
+Process monitoring tool for network-based signatures and host-based signatures. Mainly targeting Windows systems, x86 architecture, with limited Linux support.
 
 ## About
 
-YAMT monitors running processes as well as their open ports for network monitoring. Apart from this, YAMT has the ability to flag directories via a provided path for focused monitoring and analysis of the directory's content.
+YAHS monitors running processes and their open ports for network monitoring. Apart from this, YAHS has the ability to flag directories via a provided path for focused monitoring and analysis of the directory's content.
