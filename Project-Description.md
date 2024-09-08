@@ -1,4 +1,12 @@
-# Yet Another Monitoring Tool - YAMT
+# Team Name: Yet Another Monitoring Tool - YAMT
+
+## Team Members
+
+Guillermo Rached - Computer Science - rachedge@mail.uc.edu
+
+Thomas McCoy - Computer Science - mccoyt5@mail.uc.edu
+
+## Project Topic Area
 
 Process monitoring tool for network-based signatures and host-based signatures. Mainly targeting Windows systems, x86 architecture.
 
