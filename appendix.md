@@ -30,5 +30,3 @@
 *Guillermo Total Hours: 45*
 
 *Thomas Total Hours: 45*
-
-The hours reported above represent each member's hours. This means that every member spent the reported hours doing the respective work description.
