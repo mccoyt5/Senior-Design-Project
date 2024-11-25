@@ -58,6 +58,6 @@ YAHOS monitors running processes and their open ports for network monitoring. In
 [Thomas McCoy](./Thomas_McCoy_Homework_Essays/Thomas_McCoy_Professional_Biography.md)
 
 ## Budget
-TEMP
+There have been no expenses to date. We plan on using open source libraries and have no expectations of expenses at any point in this project.
 
 ## Appendix
