@@ -61,3 +61,4 @@ YAHOS monitors running processes and their open ports for network monitoring. In
 There have been no expenses to date. We plan on using open source libraries and have no expectations of expenses at any point in this project.
 
 ## Appendix
+[Apendix & Hours Summary](./appendix.md)
