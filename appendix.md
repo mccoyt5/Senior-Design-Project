@@ -19,14 +19,16 @@
 - [ETW: Event Tracing for Windows 101](https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/etw-event-tracing-for-windows-101)
 - [Parsing PE File Headers with C++](https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/pe-file-header-parser-in-c++)
 
-## Fall Semester Work Record
-| Work Description | Hours Spent |
-|-|-|
-| Senior Design Course Work | 12 |
-| Research & Independent Learning | 18 |
-| Document Revision | 3 |
-| Meetings with Team and Advisor | 12 |
+## Fall Semester Hours Worked
+| Work Category | Guillermo Rached | Thomas McCoy
+|-|-|-|
+| Senior Design Course Work | 12 | 12 |
+| Research & Independent Learning | 18 | 18 |
+| Document Revision | 3 | 3 |
+| Meetings with Team and Advisor | 12 | 12 |
 
-*Total hours: 45*
+*Guillermo Total Hours: 45*
+
+*Thomas Total Hours: 45*
 
 The hours reported above represent each member's hours. This means that every member spent the reported hours doing the respective work description.
