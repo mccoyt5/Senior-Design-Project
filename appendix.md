@@ -23,8 +23,10 @@
 | Work Description | Hours Spent |
 |-|-|
 | Senior Design Course Work | 12 |
-| Research & Independent Learning | 13 |
+| Research & Independent Learning | 18 |
 | Document Revision | 3 |
-| Meetings with Team and Advisor | 6 |
+| Meetings with Team and Advisor | 12 |
+
+*Total hours: 45*
 
 The hours reported above represent each member's hours. This means that every member spent the reported hours doing the respective work description.
