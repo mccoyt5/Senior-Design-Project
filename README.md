@@ -4,7 +4,7 @@
   - [Team Members](#team-members)
   - [Advisor](#advisor)
   - [Abstract](#abstract)
-  - [Porject Description](#porject-description)
+  - [Project Description](#project-description)
   - [User Stories and Design Diagrams](#user-stories-and-design-diagrams)
   - [Project Tasks and Timeline](#project-tasks-and-timeline)
   - [ABET Concerns Essay](#abet-concerns-essay)
@@ -28,7 +28,7 @@ Dr. Giovani Abuaitah
 
 We developed a process monitoring tool for both network-based and host-based signatures. Yet Another HOst Sentinel, YAHOS, is primarily designed for Windows systems running on x86 architecture. YAHOS continuously monitors running processes and their open ports to log any network activity. The goal of this tool is to enhance system security by offering monitoring and analysis capabilities.
 
-## Porject Description
+## Project Description
 
 YAHOS monitors running processes and their open ports for network monitoring. In addition, the tool allows users to flag specific directories by providing a path for detailed monitoring and analysis of the directory's contents. YAHOS achieves this level of monitoring by implementing kernel-level drivers listening for events specified by the user. Some of the techniques employed by YAHOS include virtual memory analysis, packet capture, and checksum validation.
 
