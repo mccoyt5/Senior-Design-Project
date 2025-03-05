@@ -25,7 +25,6 @@ AnalysisWidget::AnalysisWidget()
 
     display->addWidget(saveToFile);
     saveToFile->setDisabled(true);
-
     connect(saveToFile, SIGNAL(clicked()), this, SLOT(save()));
 }
 

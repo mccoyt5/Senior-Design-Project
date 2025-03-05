@@ -1,4 +1,5 @@
 #include "Widget.h"
+#include <QMessageBox>
 
 Widget::Widget()
 {
@@ -35,6 +36,9 @@ Widget::Widget()
     analyzeButton = new QPushButton(this);
     analyzeButton->setText("Analyze Selected Process");
 
+    openConnectionsButton = new QPushButton(this);
+    openConnectionsButton->setText("Open Process Connections");
+
     selectedFile = new QLabel(this);
     selectedFile->setText("Selected Process: No process selected");
 
@@ -47,12 +51,14 @@ Widget::Widget()
     grid->addWidget(processes);
     grid->addWidget(selectedFile);
     grid->addWidget(analyzeButton);
+    grid->addWidget(openConnectionsButton);
     grid->addWidget(refreshProcesses);
     grid->addWidget(chooseFile);
 
     connect(processes, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProcessChanged()));
     connect(chooseFile, SIGNAL(clicked()), this, SLOT(chooseFileToExecute()));
     connect(analyzeButton, SIGNAL(clicked()), this, SLOT(analyzeFile()));
+    connect(openConnectionsButton, SIGNAL(clicked()), this, SLOT(openConnectionsWindow()));
     connect(refreshProcesses, SIGNAL(clicked()), this, SLOT(refreshTable()));
 }
 
@@ -61,6 +67,26 @@ void Widget::chooseFileToExecute()
     *file = QFileDialog::getOpenFileName(this, "Choose a File", "", "All Files (*)");
     selectedFile->setText("File to Execute: " + *file);
     // would proceed to execute and analyze file here
+}
+
+void Widget::openConnectionsWindow()
+{
+    if (pidToAnalyze.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "Please select a process first.");
+        return;
+    }
+
+    // Create a new connections window with the selected PID
+    ConnectionsWindow *connectionsWindow = new ConnectionsWindow(pidToAnalyze);
+
+    // Set window properties
+    connectionsWindow->setWindowTitle("Process Connections - " + processNameToAnalyze);
+
+    // Make it a separate window rather than embedded
+    connectionsWindow->setWindowFlags(Qt::Window);
+
+    // Show the window
+    connectionsWindow->show();
 }
 
 void Widget::analyzeFile()

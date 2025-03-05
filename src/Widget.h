@@ -10,6 +10,7 @@
 #include <QHeaderView>
 #include <windows.h>
 #include <tlhelp32.h>
+#include "ConnectionsWindow.h"
 
 class Widget: public QWidget
 {
@@ -23,6 +24,7 @@ class Widget: public QWidget
 
     public slots:
         void chooseFileToExecute();
+        void openConnectionsWindow();
         void analyzeFile();
         void selectedProcessChanged();
         void refreshTable();
@@ -30,6 +32,7 @@ class Widget: public QWidget
     private:
         QPushButton *chooseFile;
         QPushButton *analyzeButton;
+        QPushButton *openConnectionsButton;
         QLabel *selectedFile;
         QString *file;
         QTableWidget *processes;

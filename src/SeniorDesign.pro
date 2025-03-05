@@ -8,6 +8,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 SOURCES += \
     Action.cpp \
     AnalysisWidget.cpp \
+    ConnectionsWindow.cpp \
     DockWidget.cpp \
     HelpWindow.cpp \
     MainWindow.cpp \
@@ -17,7 +18,10 @@ SOURCES += \
 HEADERS += \
     Action.h \
     AnalysisWidget.h \
+    ConnectionsWindow.h \
     DockWidget.h \
     HelpWindow.h \
     MainWindow.h \
     Widget.h
+
+LIBS += -liphlpapi -lws2_32
