@@ -1,0 +1,37 @@
+#include "HelpWindow.h"
+
+HelpWindow::HelpWindow()
+{
+    faq = new QLabel(this);
+    faq->setText("<h1>YAHOS</h1>"
+"YAHOS is a powerful system monitoring tool that provides real-time process monitoring, network analysis, and directory surveillance capabilities through kernel-level implementation."
+"<h3>Main Window Elements</h3>"
+"- Process List: Displays running processes with PIDs<br/>"
+"- Notes Column: Shows additional process information<br/>"
+"- Control Buttons:<br/>"
+"- Refresh Table: Updates the process list<br/>"
+"- Choose File to Execute: Opens file/directory selection<br/>"
+"- Analyze: Performs detailed analysis"
+"<h3>Reading the Process List</h3>"
+"- PID: Unique process identifier<br/>"
+"- Process Name: Executable name with extension<br/>"
+"- Notes: Additional process information and flags"
+"<h3>FAQ:</h3>"
+"<h3>General Questions</h3>"
+"Q: Does YAHOS impact system performance?<br/>"
+"A: YAHOS is designed to be lightweight, but intensive monitoring of multiple processes may affect system performance. Adjust monitoring parameters as needed.<br/>"
+"Q: Can YAHOS monitor encrypted traffic?<br/>"
+"A: YAHOS can monitor encrypted traffic patterns and metadata, but cannot decrypt encrypted communications.<br/>"
+"Q: How often should I refresh the process table?<br/>"
+"A: Manual refresh is recommended when a new process is started."
+"<h3>Security Questions</h3>"
+"Q: Does YAHOS store sensitive data?<br/>"
+"A: YAHOS does not log any data, it only displays real-time system information.<br/>"
+"Q: Is YAHOS compatible with antivirus software?<br/>"
+"A: Yes, but you may need to add YAHOS to your antivirus exceptions list due to its kernel-level operations."
+"<h3>Technical Questions</h3>"
+"Q: What kernel-level access does YAHOS require?<br/>"
+"A: YAHOS requires kernel-level access for process monitoring and network analysis. All access is strictly controlled and documented.<br/>"
+"Q: Can I monitor specific file types in directories?<br/>"
+"A: No. This feature has not been implemented into the latest version of YAHOS.");
+}

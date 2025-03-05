@@ -18,6 +18,9 @@ class Widget: public QWidget
     public:
         Widget();
 
+    signals:
+        void analyzeNewFile(QString path, QString virtualSize, QString actualSize);
+
     public slots:
         void chooseFileToExecute();
         void analyzeFile();
@@ -32,7 +35,8 @@ class Widget: public QWidget
         QTableWidget *processes;
         QGridLayout *grid;
         QPushButton *refreshProcesses;
-        //QTableWidgetItem *processName;
+        QString processNameToAnalyze;
+        QString pidToAnalyze;
 };
 
 #endif // WIDGET_H

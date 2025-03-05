@@ -33,7 +33,7 @@ Widget::Widget()
     file = new QString();
 
     analyzeButton = new QPushButton(this);
-    analyzeButton->setText("Analyze");
+    analyzeButton->setText("Analyze Selected Process");
 
     selectedFile = new QLabel(this);
     selectedFile->setText("Selected Process: No process selected");
@@ -41,11 +41,14 @@ Widget::Widget()
     refreshProcesses = new QPushButton(this);
     refreshProcesses->setText("Refresh Table");
 
+    processNameToAnalyze = "";
+    pidToAnalyze = "";
+
     grid->addWidget(processes);
     grid->addWidget(selectedFile);
+    grid->addWidget(analyzeButton);
     grid->addWidget(refreshProcesses);
     grid->addWidget(chooseFile);
-    grid->addWidget(analyzeButton);
 
     connect(processes, SIGNAL(itemSelectionChanged()), this, SLOT(selectedProcessChanged()));
     connect(chooseFile, SIGNAL(clicked()), this, SLOT(chooseFileToExecute()));
@@ -62,7 +65,47 @@ void Widget::chooseFileToExecute()
 
 void Widget::analyzeFile()
 {
-    // function to be called when analyzing a file from the processes list
+    bool stillRunning = false;
+    HANDLE captureProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process;
+    process.dwSize = sizeof(PROCESSENTRY32);
+    while(Process32Next(captureProcesses, &process) != FALSE)
+    {
+        QString pid = QString::number(process.th32ProcessID);
+        QString pName = QString::fromWCharArray(process.szExeFile);
+        if(pid == pidToAnalyze && pName == processNameToAnalyze)
+        {
+            stillRunning = true;
+            break;
+        }
+    }
+    CloseHandle(captureProcesses);
+
+    // add proper error handling
+    if(stillRunning)
+    {
+        HANDLE captureProcess = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE32 | TH32CS_SNAPMODULE, pidToAnalyze.toInt());
+        MODULEENTRY32 module;
+        module.dwSize = sizeof(MODULEENTRY32);
+        Module32First(captureProcess, &module);
+        CloseHandle(captureProcess);
+
+        HANDLE pe = CreateFileW(LPCWSTR(module.szExePath), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        HANDLE fileMapping = CreateFileMapping(pe, NULL, PAGE_READONLY, 0, 0, NULL);
+        CloseHandle(pe);
+        LPVOID fileBase = MapViewOfFile(fileMapping, FILE_MAP_READ, 0, 0, 0);
+        CloseHandle(fileMapping);
+        PIMAGE_DOS_HEADER pimage_dos_header = (PIMAGE_DOS_HEADER)fileBase;
+        PIMAGE_NT_HEADERS pimage_nt_header = (PIMAGE_NT_HEADERS)((u_char*)pimage_dos_header+pimage_dos_header->e_lfanew);
+        PIMAGE_SECTION_HEADER textSectionHeader = (PIMAGE_SECTION_HEADER)((uintptr_t)pimage_nt_header + sizeof(DWORD) + (uintptr_t)(sizeof(IMAGE_FILE_HEADER)) + (uintptr_t)pimage_nt_header->FileHeader.SizeOfOptionalHeader);
+
+        DWORD virtualSize = textSectionHeader->Misc.VirtualSize;
+        DWORD actualSize = textSectionHeader->SizeOfRawData;
+
+        // need to get imports
+
+        emit analyzeNewFile(QString::fromWCharArray(module.szExePath), QString::number(virtualSize), QString::number(actualSize));
+    }
 }
 
 void Widget::selectedProcessChanged()
@@ -73,6 +116,10 @@ void Widget::selectedProcessChanged()
     processName = processes->item(index.row(), 1);
     selectedFile->setText("Selected Process: " + processName->text());
     processes->setCurrentCell(rowNum.toInt(), 0);
+    processNameToAnalyze = processName->text();
+    QTableWidgetItem *processID = new QTableWidgetItem();
+    processID = processes->item(index.row(), 0);
+    pidToAnalyze = processID->text();
 }
 
 void Widget::refreshTable()

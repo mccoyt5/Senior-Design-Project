@@ -2,6 +2,7 @@
 #define ACTION_H
 
 #include <QAction>
+#include "HelpWindow.h"
 
 class Action: public QAction
 {
@@ -10,6 +11,7 @@ class Action: public QAction
     using QAction::QAction;
 
     public slots:
+        void help();
         void quit();
 };
 
