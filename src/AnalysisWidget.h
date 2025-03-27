@@ -19,6 +19,7 @@ class AnalysisWidget: public QWidget
     public slots:
         void updateDock(QString path, QString virtualSize, QString actualSize);
         void save();
+        std::string removeHtmlTags(QLabel *label);
 
     private:
         QGridLayout *display;

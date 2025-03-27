@@ -25,6 +25,7 @@ AnalysisWidget::AnalysisWidget()
 
     display->addWidget(saveToFile);
     saveToFile->setDisabled(true);
+
     connect(saveToFile, SIGNAL(clicked()), this, SLOT(save()));
 }
 
@@ -44,8 +45,6 @@ void AnalysisWidget::updateDock(QString path, QString virtualSize, QString actua
     imports->setText("<h3>Imports:</h3> TBD");
 }
 
-// need to remove html tags when writing to .txt file
-
 void AnalysisWidget::save()
 {
     QString saveFile = QFileDialog::getSaveFileName(this, "Save File", "", "Text files (*.txt)");
@@ -59,8 +58,24 @@ void AnalysisWidget::save()
     size_t index = substring.rfind('\\');
     substring = substring.substr(index+1);
     output << "Analyzation of " + QString::fromStdString(substring) + "\n\n";
-    output << analyzedFile->text() + "\n\n";
-    output << textVirtualSize->text() + "\n\n";
-    output << textSize->text() + "\n\n";
-    output << imports->text();
+
+    substring = removeHtmlTags(analyzedFile);
+    output << "Full file path:" + QString::fromStdString(substring) + "\n\n";
+
+    substring = removeHtmlTags(textVirtualSize);
+    output << "Text section virtual size:" + QString::fromStdString(substring) + "\n\n";
+
+    substring = removeHtmlTags(textSize);
+    output << "Text section actual size:" + QString::fromStdString(substring) + "\n\n";
+
+    substring = removeHtmlTags(imports);
+    output << "Imports:" + QString::fromStdString(substring) + "\n\n";
+}
+
+std::string AnalysisWidget::removeHtmlTags(QLabel *label)
+{
+    std::string substring = label->text().toStdString();
+    size_t index = substring.rfind("</h3>");
+    substring = substring.substr(index+5);
+    return substring;
 }
