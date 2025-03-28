@@ -23,8 +23,12 @@ Widget::Widget()
         processes->insertRow(processes->rowCount());
         QString pid = QString::number(process.th32ProcessID);
         QString pName = QString::fromWCharArray(process.szExeFile);
-        processes->setItem(processes->rowCount()-1, 0, new QTableWidgetItem(pid));
-        processes->setItem(processes->rowCount()-1, 1, new QTableWidgetItem(pName));
+        QTableWidgetItem *processID = new QTableWidgetItem(pid);
+        processID->setFlags(processID->flags() & ~Qt::ItemIsEditable);
+        processes->setItem(processes->rowCount()-1, 0, processID);
+        QTableWidgetItem *processName = new QTableWidgetItem(pName);
+        processName->setFlags(processName->flags() & ~Qt::ItemIsEditable);
+        processes->setItem(processes->rowCount()-1, 1, processName);
     }
     CloseHandle(captureProcesses);
 
@@ -162,8 +166,12 @@ void Widget::refreshTable()
             processes->insertRow(processes->rowCount());
             QString pid = QString::number(process.th32ProcessID);
             QString pName = QString::fromWCharArray(process.szExeFile);
-            processes->setItem(processes->rowCount()-1, 0, new QTableWidgetItem(pid));
-            processes->setItem(processes->rowCount()-1, 1, new QTableWidgetItem(pName));
+            QTableWidgetItem *processID = new QTableWidgetItem(pid);
+            processID->setFlags(processID->flags() & ~Qt::ItemIsEditable);
+            processes->setItem(processes->rowCount()-1, 0, processID);
+            QTableWidgetItem *processName = new QTableWidgetItem(pName);
+            processName->setFlags(processName->flags() & ~Qt::ItemIsEditable);
+            processes->setItem(processes->rowCount()-1, 1, processName);
         }
         CloseHandle(captureProcesses);
 
