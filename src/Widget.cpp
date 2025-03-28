@@ -177,3 +177,8 @@ void Widget::refreshTable()
 
         selectedFile->setText("Selected Process: No process selected");
 }
+
+void Widget::sendTable()
+{
+    emit saveTable(processes);
+}

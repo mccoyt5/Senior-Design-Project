@@ -2,6 +2,8 @@
 #define ACTION_H
 
 #include <QAction>
+#include <QTableWidget>
+#include <QFileDialog>
 #include "HelpWindow.h"
 
 class Action: public QAction
@@ -10,7 +12,12 @@ class Action: public QAction
 
     using QAction::QAction;
 
+    signals:
+        void getTable();
+
     public slots:
+        void saveTable();
+        void processTable(QTableWidget *processes);
         void help();
         void quit();
 };

@@ -21,6 +21,7 @@ class Widget: public QWidget
 
     signals:
         void analyzeNewFile(QString path, QString virtualSize, QString actualSize);
+        void saveTable(QTableWidget *processes);
 
     public slots:
         void chooseFileToExecute();
@@ -28,6 +29,7 @@ class Widget: public QWidget
         void analyzeFile();
         void selectedProcessChanged();
         void refreshTable();
+        void sendTable();
 
     private:
         QPushButton *chooseFile;

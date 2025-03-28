@@ -14,6 +14,10 @@ MainWindow::MainWindow()
     // Create toolbar
     QToolBar *toolBar = new QToolBar();
 
+    // Save Table Action
+    Action *saveTableAction = new Action("Save Table");
+    Action::connect(saveTableAction, SIGNAL(triggered()), saveTableAction, SLOT(saveTable()));
+
     // Help Action
     Action *helpAction = new Action("Help");
     Action::connect(helpAction, SIGNAL(triggered()), helpAction, SLOT(help()));
@@ -23,10 +27,13 @@ MainWindow::MainWindow()
     Action::connect(quitAction, SIGNAL(triggered()), quitAction, SLOT(quit()));
 
     // Add all actions to toolbar
+    toolBar->addAction(saveTableAction);
     toolBar->addAction(helpAction);
     toolBar->addAction(quitAction);
 
     this->addToolBar(toolBar);
 
     connect(mainMenu, &Widget::analyzeNewFile, analysis, &AnalysisWidget::updateDock);
+    connect(saveTableAction, &Action::getTable, mainMenu, &Widget::sendTable);
+    connect(mainMenu, &Widget::saveTable, saveTableAction, &Action::processTable);
 }
