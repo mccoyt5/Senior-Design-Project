@@ -7,6 +7,7 @@
 #include "Action.h"
 #include "DockWidget.h"
 #include "AnalysisWidget.h"
+#include <QScrollArea>
 
 class MainWindow: public QMainWindow
 {

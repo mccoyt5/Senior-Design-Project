@@ -17,7 +17,8 @@ class AnalysisWidget: public QWidget
         AnalysisWidget();
 
     public slots:
-        void updateDock(QString path, QString virtualSize, QString actualSize);
+        void updateDock(QString path, QString virtualSize, QString actualSize, std::vector<char*> dlls);
+        void updateDockError(QString name);
         void save();
         std::string removeHtmlTags(QLabel *label);
 

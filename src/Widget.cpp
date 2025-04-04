@@ -68,9 +68,23 @@ Widget::Widget()
 
 void Widget::chooseFileToExecute()
 {
-    *file = QFileDialog::getOpenFileName(this, "Choose a File", "", "All Files (*)");
+    *file = QFileDialog::getOpenFileName(this, "Choose a File", "", "Executable files (*.exe)");
     selectedFile->setText("File to Execute: " + *file);
-    // would proceed to execute and analyze file here
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    if(CreateProcessA(file->toStdString().c_str(), NULL, NULL, NULL, false, 0, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        refreshTable();
+    }
+    else
+    {
+        QMessageBox::warning(this, "Warning", "Can't execute selected file.");
+    }
 }
 
 void Widget::openConnectionsWindow()
@@ -111,7 +125,6 @@ void Widget::analyzeFile()
     }
     CloseHandle(captureProcesses);
 
-    // add proper error handling
     if(stillRunning)
     {
         HANDLE captureProcess = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE32 | TH32CS_SNAPMODULE, pidToAnalyze.toInt());
@@ -126,15 +139,67 @@ void Widget::analyzeFile()
         LPVOID fileBase = MapViewOfFile(fileMapping, FILE_MAP_READ, 0, 0, 0);
         CloseHandle(fileMapping);
         PIMAGE_DOS_HEADER pimage_dos_header = (PIMAGE_DOS_HEADER)fileBase;
-        PIMAGE_NT_HEADERS pimage_nt_header = (PIMAGE_NT_HEADERS)((u_char*)pimage_dos_header+pimage_dos_header->e_lfanew);
-        PIMAGE_SECTION_HEADER textSectionHeader = (PIMAGE_SECTION_HEADER)((uintptr_t)pimage_nt_header + sizeof(DWORD) + (uintptr_t)(sizeof(IMAGE_FILE_HEADER)) + (uintptr_t)pimage_nt_header->FileHeader.SizeOfOptionalHeader);
+        if(pimage_dos_header != nullptr)
+        {
+            PIMAGE_NT_HEADERS pimage_nt_header = (PIMAGE_NT_HEADERS)((u_char*)pimage_dos_header+pimage_dos_header->e_lfanew);
+            PIMAGE_SECTION_HEADER textSectionHeader = (PIMAGE_SECTION_HEADER)((uintptr_t)pimage_nt_header + sizeof(DWORD) + (uintptr_t)(sizeof(IMAGE_FILE_HEADER)) + (uintptr_t)pimage_nt_header->FileHeader.SizeOfOptionalHeader);
+            int remainingSections = pimage_nt_header->FileHeader.NumberOfSections;
+            while(true)
+            {
+                BYTE text[8] = {'.','t','e','x','t'};
+                if(memcmp(textSectionHeader->Name, text, 8) == 0)
+                {
+                    break;
+                }
+                else if(remainingSections == 1)
+                {
+                    std::vector<char*> dlls;
+                    emit analyzeNewFile(QString::fromWCharArray(module.szExePath), "No text section", "No text section", dlls);
+                }
+                else
+                {
+                    textSectionHeader = textSectionHeader + 1;
+                    remainingSections--;
+                }
+            }
 
-        DWORD virtualSize = textSectionHeader->Misc.VirtualSize;
-        DWORD actualSize = textSectionHeader->SizeOfRawData;
+            DWORD virtualSize = textSectionHeader->Misc.VirtualSize;
+            DWORD actualSize = textSectionHeader->SizeOfRawData;
 
-        // need to get imports
+            PIMAGE_SECTION_HEADER sectionHoldingImports = (PIMAGE_SECTION_HEADER)((uintptr_t)pimage_nt_header + sizeof(DWORD) + (uintptr_t)(sizeof(IMAGE_FILE_HEADER)) + (uintptr_t)pimage_nt_header->FileHeader.SizeOfOptionalHeader);
+            remainingSections = pimage_nt_header->FileHeader.NumberOfSections;
+            while(true)
+            {
+                if(sectionHoldingImports->VirtualAddress <= pimage_nt_header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress && (sectionHoldingImports->VirtualAddress + sectionHoldingImports->Misc.VirtualSize) > pimage_nt_header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress)
+                {
+                    break;
+                }
+                else if(remainingSections == 1)
+                {
+                    std::vector<char*> dlls;
+                    emit analyzeNewFile(QString::fromWCharArray(module.szExePath), QString::number(virtualSize), QString::number(actualSize), dlls);
+                }
+                else
+                {
+                    sectionHoldingImports = sectionHoldingImports + 1;
+                    remainingSections--;
+                }
+            }
 
-        emit analyzeNewFile(QString::fromWCharArray(module.szExePath), QString::number(virtualSize), QString::number(actualSize));
+            PIMAGE_IMPORT_DESCRIPTOR pimage_import_descriptor = (PIMAGE_IMPORT_DESCRIPTOR)((uintptr_t)fileBase + sectionHoldingImports->PointerToRawData + pimage_nt_header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress - sectionHoldingImports->VirtualAddress);
+            std::vector<char*> dlls;
+            while(pimage_import_descriptor->Name != 0)
+            {
+                char* dllName = (char*)((uintptr_t)fileBase + sectionHoldingImports->PointerToRawData + pimage_import_descriptor->Name - sectionHoldingImports->VirtualAddress);
+                dlls.push_back(dllName);
+                pimage_import_descriptor += 1;
+            }
+            emit analyzeNewFile(QString::fromWCharArray(module.szExePath), QString::number(virtualSize), QString::number(actualSize), dlls);
+        }
+        else
+        {
+            emit cantAnalyzeFile(QString::fromWCharArray(process.szExeFile));
+        }
     }
 }
 
