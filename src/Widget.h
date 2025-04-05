@@ -21,7 +21,8 @@ class Widget: public QWidget
         Widget();
 
     signals:
-        void analyzeNewFile(QString path, QString virtualSize, QString actualSize);
+        void analyzeNewFile(QString path, QString virtualSize, QString actualSize, std::vector<char*> dlls);
+        void cantAnalyzeFile(QString name);
         void saveTable(QTableWidget *processes);
 
     public slots:
