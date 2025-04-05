@@ -1,36 +1,19 @@
 #include "Widget.h"
-#include <QMessageBox>
 
 Widget::Widget()
 {
     grid = new QGridLayout(this);
 
     processes = new QTableWidget(this);
-    processes->setColumnCount(3);
-    QStringList columnLabels = {"PID", "Process Name", "Notes"};
+    processes->setColumnCount(4);
+    QStringList columnLabels = {"PID", "Process Name", "Connections", "Notes"};
     processes->setHorizontalHeaderLabels(columnLabels);
     processes->setMinimumWidth(1000);
     processes->setMinimumHeight(450);
     processes->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     processes->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    // need to add exception handling
-    HANDLE captureProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 process;
-    process.dwSize = sizeof(PROCESSENTRY32);
-    while(Process32Next(captureProcesses, &process) != FALSE)
-    {
-        processes->insertRow(processes->rowCount());
-        QString pid = QString::number(process.th32ProcessID);
-        QString pName = QString::fromWCharArray(process.szExeFile);
-        QTableWidgetItem *processID = new QTableWidgetItem(pid);
-        processID->setFlags(processID->flags() & ~Qt::ItemIsEditable);
-        processes->setItem(processes->rowCount()-1, 0, processID);
-        QTableWidgetItem *processName = new QTableWidgetItem(pName);
-        processName->setFlags(processName->flags() & ~Qt::ItemIsEditable);
-        processes->setItem(processes->rowCount()-1, 1, processName);
-    }
-    CloseHandle(captureProcesses);
+    populateProcessTable();
 
     chooseFile = new QPushButton(this);
     chooseFile->setText("Choose File to Execute");
@@ -66,11 +49,148 @@ Widget::Widget()
     connect(refreshProcesses, SIGNAL(clicked()), this, SLOT(refreshTable()));
 }
 
+void Widget::populateProcessTable()
+{
+    // Start fresh
+    processes->clearContents();
+    processes->setRowCount(0);
+
+    HANDLE captureProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (captureProcesses == INVALID_HANDLE_VALUE)
+    {
+        QMessageBox::critical(this, "Error", "Something went wrong when getting running processes");
+        // Exit on OK?
+    }
+
+    PROCESSENTRY32 process;
+    process.dwSize = sizeof(PROCESSENTRY32);
+
+    // Get first process
+    if (Process32First(captureProcesses, &process))
+    {
+        do {
+            processes->insertRow(processes->rowCount());
+            QString pid = QString::number(process.th32ProcessID);
+            QString pName = QString::fromWCharArray(process.szExeFile);
+
+            // PID Column
+            QTableWidgetItem *processID = new QTableWidgetItem(pid);
+            processID->setFlags(processID->flags() & ~Qt::ItemIsEditable);
+            processes->setItem(processes->rowCount()-1, 0, processID);
+
+            // Process Name Column
+            QTableWidgetItem *processName = new QTableWidgetItem(pName);
+            processName->setFlags(processName->flags() & ~Qt::ItemIsEditable);
+            processes->setItem(processes->rowCount()-1, 1, processName);
+
+            // Connections Column
+            int connectionCount = getProcessConnections(process.th32ProcessID);
+            QTableWidgetItem *connections = new QTableWidgetItem(QString::number(connectionCount));
+            connections->setFlags(connections->flags() & ~Qt::ItemIsEditable);
+            processes->setItem(processes->rowCount()-1, 2, connections);
+        } while (Process32Next(captureProcesses, &process));
+    }
+    CloseHandle(captureProcesses);
+}
+
 void Widget::chooseFileToExecute()
 {
     *file = QFileDialog::getOpenFileName(this, "Choose a File", "", "All Files (*)");
     selectedFile->setText("File to Execute: " + *file);
     // would proceed to execute and analyze file here
+}
+
+int Widget::getProcessConnections(DWORD processID)
+{
+    int connectionCount = 0;
+
+    // Get TCP connections (IPv4)
+    PMIB_TCPTABLE_OWNER_PID tcpTable = NULL;
+    DWORD tcpTableSize = 0;
+    DWORD result;
+
+    // First call to get required buffer size (A lot of these functions work like this)
+    result = GetExtendedTcpTable(NULL, &tcpTableSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+    if (result == ERROR_INSUFFICIENT_BUFFER)
+    {
+        tcpTable = (PMIB_TCPTABLE_OWNER_PID)malloc(tcpTableSize);
+        if (tcpTable != NULL)
+        {
+            result = GetExtendedTcpTable(tcpTable, &tcpTableSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+            if (result == NO_ERROR)
+            {
+                // Count the connections of the given process
+                for (DWORD i = 0; i < tcpTable->dwNumEntries; i++)
+                {
+                    if (tcpTable->table[i].dwOwningPid == processID) connectionCount++;
+                }
+            }
+            free(tcpTable);
+            tcpTable = NULL;
+        }
+    }
+
+    // Now, get the UDP connections
+    PMIB_UDPTABLE_OWNER_PID udpTable = NULL;
+    DWORD udpTableSize = 0;
+
+    result = GetExtendedUdpTable(NULL, &udpTableSize, TRUE, AF_INET, UDP_TABLE_OWNER_PID, 0);
+    if (result == ERROR_INSUFFICIENT_BUFFER)
+    {
+        udpTable = (PMIB_UDPTABLE_OWNER_PID)malloc(udpTableSize);
+        result = GetExtendedUdpTable(udpTable, &udpTableSize, TRUE, AF_INET, UDP_TABLE_OWNER_PID, 0);
+        if (result != NO_ERROR)
+        {
+            for(DWORD i = 0; i < udpTable->dwNumEntries; i++)
+            {
+                if (udpTable->table[i].dwOwningPid == processID) connectionCount++;
+            }
+        }
+        free(udpTable);
+        udpTable = NULL;
+    }
+
+    // IPv6 -- Only difference is AF_INET -> AF_INET6
+    // Haven't decided to include this yet. I'm just sticking with IPv4 for now.
+    // tcpTableSize = 0;
+    // result = GetExtendedTcpTable(NULL, &tcpTableSize, TRUE, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
+    // if (result == ERROR_INSUFFICIENT_BUFFER)
+    // {
+    //     tcpTable = (PMIB_TCPTABLE_OWNER_PID)malloc(tcpTableSize);
+    //     if (tcpTable != NULL)
+    //     {
+    //         result = GetExtendedTcpTable(tcpTable, &tcpTableSize, TRUE, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
+    //         if (result == NO_ERROR)
+    //         {
+    //             // Count the connections of the given process
+    //             for (DWORD i = 0; i < tcpTable->dwNumEntries; i++)
+    //             {
+    //                 if (tcpTable->table[i].dwOwningPid == processID) connectionCount++;
+    //             }
+    //         }
+    //         free(tcpTable);
+    //         tcpTable = NULL;
+    //     }
+    // }
+
+    // udpTableSize = 0;
+    // result = GetExtendedUdpTable(NULL, &udpTableSize, TRUE, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+    // if (result == ERROR_INSUFFICIENT_BUFFER)
+    // {
+    //     udpTable = (PMIB_UDPTABLE_OWNER_PID)malloc(udpTableSize);
+    //     result = GetExtendedUdpTable(udpTable, &udpTableSize, TRUE, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+    //     if (result != NO_ERROR)
+    //     {
+    //         for(DWORD i = 0; i < udpTable->dwNumEntries; i++)
+    //         {
+    //             if (udpTable->table[i].dwOwningPid == processID) connectionCount++;
+    //         }
+    //     }
+    //     free(udpTable);
+    //     udpTable = NULL;
+    // }
+
+    return connectionCount;
 }
 
 void Widget::openConnectionsWindow()
@@ -154,28 +274,8 @@ void Widget::selectedProcessChanged()
 
 void Widget::refreshTable()
 {
-        processes->clearContents();
-        processes->setRowCount(0);
-
-        //same code as in initialization, create function for it
-        HANDLE captureProcesses = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-        PROCESSENTRY32 process;
-        process.dwSize = sizeof(PROCESSENTRY32);
-        while(Process32Next(captureProcesses, &process) != FALSE)
-        {
-            processes->insertRow(processes->rowCount());
-            QString pid = QString::number(process.th32ProcessID);
-            QString pName = QString::fromWCharArray(process.szExeFile);
-            QTableWidgetItem *processID = new QTableWidgetItem(pid);
-            processID->setFlags(processID->flags() & ~Qt::ItemIsEditable);
-            processes->setItem(processes->rowCount()-1, 0, processID);
-            QTableWidgetItem *processName = new QTableWidgetItem(pName);
-            processName->setFlags(processName->flags() & ~Qt::ItemIsEditable);
-            processes->setItem(processes->rowCount()-1, 1, processName);
-        }
-        CloseHandle(captureProcesses);
-
-        selectedFile->setText("Selected Process: No process selected");
+    populateProcessTable();
+    selectedFile->setText("Selected Process: No process selected");
 }
 
 void Widget::sendTable()

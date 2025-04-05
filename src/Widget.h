@@ -2,6 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QLabel>
 #include <QTableWidget>
@@ -24,6 +25,8 @@ class Widget: public QWidget
         void saveTable(QTableWidget *processes);
 
     public slots:
+        int getProcessConnections(DWORD processID);
+        void populateProcessTable();
         void chooseFileToExecute();
         void openConnectionsWindow();
         void analyzeFile();

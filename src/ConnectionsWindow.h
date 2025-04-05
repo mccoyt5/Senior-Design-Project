@@ -10,11 +10,6 @@
 #include <iphlpapi.h>
 #include <tlhelp32.h>
 #include <psapi.h>
-#include <iostream>
-#include <string>
-#include <iomanip>
-#include <map>
-#include <vector>
 #include <qheaderview.h>
 
 class ConnectionsWindow : public QDialog
@@ -32,6 +27,9 @@ private:
 
     void loadConnections();
     QString getStatusString(DWORD state);
+
+private slots:
+    void onRowDoubleClicked(int row, int column);
 };
 
 #endif // CONNECTIONSWINDOW_H
