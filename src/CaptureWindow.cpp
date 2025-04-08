@@ -39,12 +39,10 @@ CaptureWindow::CaptureWindow(QString protocol, QString localAddr, QString localP
     // button layout
     buttonLayout = new QHBoxLayout();
 
-    listDevicesButton = new QPushButton("List Devices", this);
     startCaptureButton = new QPushButton("Start Capture", this);
     stopCaptureButton = new QPushButton("Stop Capture", this);
     stopCaptureButton->setEnabled(false);
 
-    buttonLayout->addWidget(listDevicesButton);
     buttonLayout->addWidget(startCaptureButton);
     buttonLayout->addWidget(stopCaptureButton);
     mainLayout->addLayout(buttonLayout);
@@ -56,7 +54,6 @@ CaptureWindow::CaptureWindow(QString protocol, QString localAddr, QString localP
     mainLayout->addWidget(captureDisplay);
 
     // connect the stuff
-    // connect(listDevicesButton, SIGNAL(clicked()), this, SLOT(openDevicesWindow()));
     connect(startCaptureButton, SIGNAL(clicked()), this, SLOT(startCapture()));
     connect(stopCaptureButton, SIGNAL(clicked()), this, SLOT(stopCapture()));
 
