@@ -204,14 +204,24 @@ void CaptureWindow::stopCapture()
         return;
     }
 
+    // First, mark that we're no longer capturing
+    isCapturing = false;
+
     // Signal the capture thread to stop
     stopCapturing = true;
 
-    // Wait for the thread to finish
+    // Break the pcap loop to unblock the thread
+    if (captureHandle) {
+        pcap_breakloop(captureHandle);
+    }
+
+    // Wait for the thread to finish - important to do this BEFORE opening any dialogs
     if (captureThread && captureThread->isRunning()) {
-        captureThread->quit();
-        captureThread->wait(2000);
-        while (captureThread->isRunning()) Sleep(1000);
+        if (!captureThread->wait(2000)) {
+            // If thread doesn't quit on its own, terminate it
+            captureThread->terminate();
+            captureThread->wait(1000);
+        }
         delete captureThread;
         captureThread = nullptr;
     }
@@ -222,35 +232,56 @@ void CaptureWindow::stopCapture()
         captureHandle = nullptr;
     }
 
-    // Prompt for save location
-    QString filePath = QFileDialog::getSaveFileName(this,
-                                                    "Save Capture File", "", "Pcap Files (*.pcap)");
+    // Make a thread-safe copy of packet data before showing dialog
+    int finalPacketCount = 0;
+    bool hasPackets = false;
 
-    if (!filePath.isEmpty()) {
-        if (saveCaptureToPcapFile(filePath)) {
-            captureDisplay->append("Capture saved to: " + filePath);
-        } else {
-            QMessageBox::critical(this, "Error", "Failed to save capture file");
+    // Use a separate scope for the mutex lock to ensure it's released before dialog
+    {
+        QMutexLocker locker(&packetMutex);
+        finalPacketCount = packetCount;
+        hasPackets = !capturedPackets.isEmpty();
+    } // mutex unlocked here when locker goes out of scope
+
+    // Only show save dialog if we have packets
+    if (hasPackets) {
+        // Now it's safe to show dialog since all threads are stopped
+        QString filePath = QFileDialog::getSaveFileName(this,
+                                                        "Save Capture File", "", "Pcap Files (*.pcap)");
+
+        if (!filePath.isEmpty()) {
+            if (saveCaptureToPcapFile(filePath)) {
+                captureDisplay->append("Capture saved to: " + filePath);
+            } else {
+                QMessageBox::critical(this, "Error", "Failed to save capture file");
+            }
         }
+    } else {
+        captureDisplay->append("No packets were captured.");
     }
 
     captureDisplay->append("----------------------------------------------------------");
     captureDisplay->append("Packet capture stopped. Captured " +
-                           QString::number(packetCount) + " packets.");
+                           QString::number(finalPacketCount) + " packets.");
 
-    isCapturing = false;
+    // Update UI
     startCaptureButton->setEnabled(true);
     stopCaptureButton->setEnabled(false);
 }
 
 bool CaptureWindow::saveCaptureToPcapFile(const QString &filePath)
 {
-    // Lock the mutex while accessing the captured packets
-    QMutexLocker locker(&packetMutex);
+    // Make a local copy of the packets to minimize mutex lock time
+    QVector<PacketData> packetsCopy;
 
-    if (capturedPackets.isEmpty()) {
-        return false;
-    }
+    // Lock the mutex only while copying the vector, not during file operations
+    {
+        QMutexLocker locker(&packetMutex);
+        if (capturedPackets.isEmpty()) {
+            return false;
+        }
+        packetsCopy = capturedPackets;
+    } // mutex unlocked here
 
     // Create a new pcap file
     pcap_t *pd = pcap_open_dead(DLT_EN10MB, 65535);
@@ -265,8 +296,9 @@ bool CaptureWindow::saveCaptureToPcapFile(const QString &filePath)
         return false;
     }
 
-    // Write each packet to the file
-    for (const PacketData &packet : capturedPackets) {
+    // Write each packet to the file from our local copy
+    for (int i = 0; i < packetsCopy.size(); i++) {
+        const PacketData &packet = packetsCopy.at(i);
         pcap_dump((u_char*)dumper, &packet.header,
                   reinterpret_cast<const u_char*>(packet.data.constData()));
     }
