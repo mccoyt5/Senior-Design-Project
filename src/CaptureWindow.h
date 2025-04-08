@@ -48,7 +48,6 @@ private:
     QVBoxLayout *mainLayout;
     QHBoxLayout *buttonLayout;
     QLabel *connectionInfoLabel;
-    QPushButton *listDevicesButton;
     QPushButton *startCaptureButton;
     QPushButton *stopCaptureButton;
     QTextEdit *captureDisplay;
