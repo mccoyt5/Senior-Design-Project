@@ -77,10 +77,10 @@ void AnalysisWidget::save()
     output << "Full file path:" + QString::fromStdString(substring) + "\n\n";
 
     substring = removeHtmlTags(textVirtualSize);
-    output << "Text section virtual size:" + QString::fromStdString(substring) + " bytes" + "\n\n";
+    output << "Text section virtual size:" + QString::fromStdString(substring) + "\n\n";
 
     substring = removeHtmlTags(textSize);
-    output << "Text section actual size:" + QString::fromStdString(substring) + " bytes" + "\n\n";
+    output << "Text section actual size:" + QString::fromStdString(substring) + "\n\n";
 
     substring = removeHtmlTags(imports);
     output << "Imports:\n" + QString::fromStdString(substring) + "\n\n";
