@@ -1,4 +1,11 @@
+#include "CaptureWindow.h"
 #include <ConnectionsWindow.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
 
 ConnectionsWindow::ConnectionsWindow(QString pid) : processPid(pid)
 {
@@ -15,6 +22,8 @@ ConnectionsWindow::ConnectionsWindow(QString pid) : processPid(pid)
 
     layout->addWidget(connectionsTable);
     setLayout(layout);
+
+    connect(connectionsTable, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(onRowDoubleClicked(int,int)));
 
     loadConnections();
 }
@@ -55,6 +64,23 @@ QString ConnectionsWindow::getStatusString(DWORD state)
     }
 }
 
+void ConnectionsWindow::onRowDoubleClicked(int row, int column)
+{
+    // Get the connection details
+    QString protocol = connectionsTable->item(row, 0)->text();
+    QString localAddr = connectionsTable->item(row, 1)->text();
+    QString localPort = connectionsTable->item(row, 2)->text();
+    QString remoteAddr = connectionsTable->item(row, 3)->text();
+    QString remotePort = connectionsTable->item(row, 4)->text();
+
+    // Create and then show the capture window
+    CaptureWindow *captureWindow = new CaptureWindow(protocol, localAddr, localPort, remoteAddr, remotePort);
+
+    captureWindow->setWindowTitle("Port Capture - " + localPort);
+    captureWindow->setWindowFlags(Qt::Window);
+    captureWindow->show();
+}
+
 void ConnectionsWindow::loadConnections()
 {
     connectionsTable->clearContents();
@@ -68,7 +94,7 @@ void ConnectionsWindow::loadConnections()
         return;
     }
 
-    // tcp table with process IDs
+    // TCP table with process IDs (IPv4)
     DWORD size = 0;
     DWORD result = GetExtendedTcpTable(NULL, &size, FALSE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
 
@@ -94,7 +120,7 @@ void ConnectionsWindow::loadConnections()
                     inet_ntop(AF_INET, &remoteAddr, remoteAddrStr, INET_ADDRSTRLEN);
 
                     // Protocol
-                    connectionsTable->setItem(row, 0, new QTableWidgetItem("TCP"));
+                    connectionsTable->setItem(row, 0, new QTableWidgetItem("TCP (IPv4)"));
 
                     // Local address and port
                     connectionsTable->setItem(row, 1, new QTableWidgetItem(QString(localAddrStr)));
@@ -111,7 +137,7 @@ void ConnectionsWindow::loadConnections()
         }
     }
 
-    // now, UDP table with process IDs (no connection state for UDP)
+    // now, UDP table with process IDs (IPv4) (no connection state for UDP)
     size = 0;
     result = GetExtendedUdpTable(NULL, &size, FALSE, AF_INET, UDP_TABLE_OWNER_PID, 0);
 
@@ -133,7 +159,7 @@ void ConnectionsWindow::loadConnections()
                     inet_ntop(AF_INET, &localAddr, localAddrStr, INET_ADDRSTRLEN);
 
                     // Protocol
-                    connectionsTable->setItem(row, 0, new QTableWidgetItem("UDP"));
+                    connectionsTable->setItem(row, 0, new QTableWidgetItem("UDP (IPv4)"));
 
                     // Local address and port
                     connectionsTable->setItem(row, 1, new QTableWidgetItem(QString(localAddrStr)));

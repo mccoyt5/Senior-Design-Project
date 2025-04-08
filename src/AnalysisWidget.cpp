@@ -38,8 +38,8 @@ void AnalysisWidget::updateDock(QString path, QString virtualSize, QString actua
     substring = substring.substr(index+1);
     title->setText("<h1>Analyzation of " + QString::fromStdString(substring) + "</h1>");
     title->setAlignment(Qt::AlignCenter);
-    textVirtualSize->setText("<h3>Text section virtual size:</h3> " + virtualSize);
-    textSize->setText("<h3>Text section actual size:</h3> " + actualSize);
+    textVirtualSize->setText("<h3>Text section virtual size:</h3> " + virtualSize + " bytes");
+    textSize->setText("<h3>Text section actual size:</h3> " + actualSize + " bytes");
     std::string dllsAsString = "";
     for(unsigned long long i = 0; i < dlls.size(); i++)
     {
