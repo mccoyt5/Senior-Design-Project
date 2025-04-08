@@ -15,7 +15,7 @@ void Action::processTable(QTableWidget *processes)
     }
     QTextStream output(&tableFile);
 
-    output << "PID, Process Name, Notes\n";
+    output << "PID, Process Name, Connections, Notes\n";
 
     for(int i = 0; i < processes->rowCount(); i++)
     {

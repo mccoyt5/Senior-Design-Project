@@ -89,8 +89,7 @@ void AnalysisWidget::save()
 std::string AnalysisWidget::removeHtmlTags(QLabel *label)
 {
     QString withoutBreaks = label->text().replace("<br/>", "\n ");
-    label->setText(withoutBreaks);
-    std::string substring = label->text().toStdString();
+    std::string substring = withoutBreaks.toStdString();
     size_t index = substring.rfind("</h3>");
     substring = substring.substr(index+5);
     return substring;
