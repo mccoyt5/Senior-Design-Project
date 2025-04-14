@@ -227,6 +227,11 @@ void Widget::openConnectionsWindow()
     connectionsWindow->show();
 }
 
+
+/*  
+    Implementation based and inspired by ired team article:
+        https://www.ired.team/miscellaneous-reversing-forensics/windows-kernel-internals/pe-file-header-parser-in-c++#code
+*/
 void Widget::analyzeFile()
 {
     bool stillRunning = false;
