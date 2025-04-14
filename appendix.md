@@ -30,3 +30,26 @@
 *Guillermo Total Hours: 45*
 
 *Thomas Total Hours: 45*
+
+## Spring Semester Hours Worked
+
+| Work Category | Guillermo Rached | Thomas McCoy
+|-|-|-|
+| Senior Design Course Work | 12 | ? |
+| Research & Independent Learning | 10 | ? |
+| Component Design | 3 | ? |
+| Component Implementation | 15 | ? |
+| Component Testing | 5 | ? |
+| Code Revision | 3 | ? |
+| Document Revision | 2 | ? |
+| Meetings with Team and Advisor | 10 | ? |
+
+### Guillermo Hours Justification
+*Guillermo Total Hours: 60*
+
+I thoroughly immersed myself in Microsoft's extensive documentation covering the Windows Process API, security models, and network stack integration. This involved studying multiple monitoring approaches (WMI, Process Status API, ETW) to determine optimal performance characteristics while maintaining system stability. I spent considerable time analyzing the PE file structure to understand implementation patterns and potential unique features for our tool. The remaining hours were dedicated to learning and researching Qt framework implementation strategies, particularly focusing on architecture patterns suitable for real-time monitoring applications, threading models for responsive UIs, and optimizing performance for intensive monitoring scenarios. Each research segment directly informed the subsequent design decisions, component implementation strategies, testing approaches, and ultimately shaped both the code review criteria and comprehensive documentation that would accompany the finished product. All mentioned activities can be observed through this repository's commit messages and progress on the development of the product.
+
+#### Total hours: 105
+
+### Thomas Hours Justification
+*Thomas Total Hours: ?*
