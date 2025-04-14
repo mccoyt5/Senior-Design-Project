@@ -7,6 +7,7 @@
 - [Event Tracing for Windows](https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/event-tracing-for-windows--etw-)
 - [Adding ETW to Kernel-Mode Drivers](https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/adding-event-tracing-to-kernel-mode-drivers)
 - [TraceLogging API](https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/tracelogging-api)
+- [Peering Inside the PE: A Tour of the Win32 Portable Executable File Format](https://learn.microsoft.com/en-us/previous-versions/ms809762(v=msdn.10)?redirectedfrom=MSDN)
 
 ## Docker
 - [Network Drivers](https://docs.docker.com/engine/network/drivers/)
@@ -35,14 +36,14 @@
 
 | Work Category | Guillermo Rached | Thomas McCoy
 |-|-|-|
-| Senior Design Course Work | 12 | ? |
-| Research & Independent Learning | 10 | ? |
-| Component Design | 3 | ? |
-| Component Implementation | 15 | ? |
-| Component Testing | 5 | ? |
-| Code Revision | 3 | ? |
-| Document Revision | 2 | ? |
-| Meetings with Team and Advisor | 10 | ? |
+| Senior Design Course Work | 12 | 12 |
+| Research & Independent Learning | 10 | 15 |
+| Component Design | 3 | 3 |
+| Component Implementation | 15 | 20 |
+| Component Testing | 5 | 4 |
+| Code Revision | 3 | 2 |
+| Document Revision | 2 | 2 |
+| Meetings with Team and Advisor | 10 | 10 |
 
 ### Guillermo Hours Justification
 *Guillermo Total Hours: 60*
@@ -52,4 +53,8 @@ I thoroughly immersed myself in Microsoft's extensive documentation covering the
 #### Total hours: 105
 
 ### Thomas Hours Justification
-*Thomas Total Hours: ?*
+*Thomas Total Hours: 68*
+
+My hours in the beginning of the project were spent largely on reading the Qt documentation. This was very important as Qt was used to create the user interface of the project. After that, I spent a lot of time reading the Microsoft API documentation. This was necessary to learn how to display a table containing all of the running processes on the machine. Once that was implemented, I had to continue reading the Microsoft API documentation as well as other articles on PE file structure and how to extract information from them. This took a considerable amount of time as I had no prior experience working with them. This also led to bugs when implementing these features, that I had to spend time on to resolve. This work, in addition to the documents in the repository, are how I was able to come to this total.
+
+#### Total hours: 113
