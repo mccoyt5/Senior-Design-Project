@@ -8,6 +8,7 @@
   - [Test Plan and Results](#test-plan-and-results)
   - [User Manual](#user-manual)
   - [PPT Slideshow](#ppt-slideshow)
+  - [Demo Video](#demo-video)
   - [Expo Poster](#expo-poster)
   - [Self-Assessment Essays](#self-assessment-essays)
   - [Professional Biographies](#professional-biographies)
@@ -42,14 +43,19 @@ YAHOS monitors running processes and their open ports for network monitoring. In
 ## PPT Slideshow
 [Slideshow](./Spring_Design_Presentation.pptx)
 
+## Demo Video
+[Demo Video](./YAHOS-Demo-Video.mp4)
+
 ## Expo Poster
 [Expo Poster](./YAHOS-Expo-Poster.pdf)
 
 ## Self-Assessment Essays
 [Guillermo Fall Assessment](./Guillermo_Rached_Homework_Essays/capstone_assessment.pdf)
+
 [Guillermo Spring Assessment](./Guillermo_Rached_Homework_Essays/final_self_assessment.pdf)
 
 [Thomas Fall Assessment](./Thomas_McCoy_Homework_Essays/Thomas_McCoy_Individual_Capstone_Assessment.pdf)
+
 [Thomas Spring Assessment](./Thomas_McCoy_Homework_Essays/Thomas_McCoy_Final_Self-Assessment.pdf)
 
 ## Professional Biographies
